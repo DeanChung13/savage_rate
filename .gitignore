@@ -51,7 +51,6 @@ model.log
 *.pkl
 *.h5
 models/*.pt
-backend/models/*.pth
 backend/models/*.pt
 
 # Testing
