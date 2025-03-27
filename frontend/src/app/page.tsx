@@ -4,6 +4,7 @@ import { Box, Container, Heading, Text } from '@chakra-ui/react';
 import ImageUploader from '@/components/ImageUploader';
 import ResultDisplay from '@/components/ResultDisplay';
 import { useState } from 'react';
+import { Analytics } from "@vercel/analytics/react"
 
 export default function Home() {
   const [result, setResult] = useState<{
@@ -31,6 +32,7 @@ export default function Home() {
           <ResultDisplay score={result.score} comment={result.comment} />
         </Box>
       )}
+      <Analytics />
     </Container>
   );
 } 

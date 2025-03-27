@@ -59,7 +59,7 @@ savage-rate/
 ├── frontend/
 │   ├── src/                   # 源代碼目錄
 │   │   ├── components/        # React 組件
-│   │   ├── pages/            # Next.js 頁面
+│   │   ├── app/              # Next.js 頁面
 │   │   ├── styles/           # CSS 樣式文件
 │   │   └── utils/            # 工具函數
 │   ├── public/               # 靜態資源
@@ -70,49 +70,74 @@ savage-rate/
 └── README.md                 # 項目文檔
 ```
 
-## 使用說明
+## 本地開發
 
+### 後端開發
 1. 啟動後端服務
 ```bash
 cd backend
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-2. 啟動前端開發服務器
+2. 訪問 API 文檔：http://localhost:8000/docs
+
+### 前端開發
+1. 啟動開發服務器
 ```bash
 cd frontend
 npm run dev
 ```
 
-3. 訪問應用
-- 開發環境：http://localhost:3000
-- 生產環境：https://your-domain.vercel.app
-- API 文檔：http://localhost:8000/docs
+2. 訪問：http://localhost:3000
 
-## 前端部署
+## 部署說明
 
-### Vercel 部署
+### Vercel 部署前端
 
 1. 在 Vercel 中導入專案
-2. 設置構建配置：
-   ```json
-   {
-     "buildCommand": "cd frontend && npm install && npm run build",
-     "outputDirectory": "frontend/.next",
-     "devCommand": "cd frontend && npm run dev",
-     "installCommand": "cd frontend && npm install"
-   }
+
+2. 配置部署設置：
+   - 框架預設：Next.js
+   - 根目錄：`frontend`
+   - 構建命令：`npm run build`
+   - 輸出目錄：`.next`
+   - Node.js 版本：18.x
+
+3. 環境變量設置：
    ```
-3. 設置環境變量：
-   - `NEXT_PUBLIC_API_URL`: 後端 API 地址
-   - `NEXT_PUBLIC_BASE_URL`: 前端部署地址
+   NEXT_PUBLIC_API_URL=https://your-backend-api.com
+   ```
 
-### 本地構建
+4. 部署後檢查：
+   - 確認 `routes-manifest.json` 存在於 `.next` 目錄
+   - 檢查構建日誌中的錯誤信息
+   - 驗證 API 端點配置正確
 
+### 後端部署
+
+1. 準備部署環境：
+   - 安裝所需的 Python 版本和依賴
+   - 配置 CUDA 環境（如需 GPU）
+   - 設置環境變量
+
+2. 配置生產環境：
 ```bash
-cd frontend
-npm run build
-npm run start
+pip install gunicorn
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+```
+
+3. 使用 Nginx 反向代理（推薦）：
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
 ```
 
 ## API 使用
@@ -123,9 +148,11 @@ npm run start
 - **方法**: POST
 - **Content-Type**: multipart/form-data
 - **參數**: file（圖片文件）
+- **限制**: 
+  - 最大文件大小：5MB
+  - 支持格式：JPG、PNG、WebP
 
 ```bash
-# 使用 curl 測試
 curl -X POST -F "file=@/path/to/image.jpg" http://localhost:8000/predict
 ```
 
@@ -142,17 +169,11 @@ curl -X POST -F "file=@/path/to/image.jpg" http://localhost:8000/predict
 
 系統會處理以下錯誤情況：
 - 無效的圖片格式
-- 圖片大小超過限制（最大 5MB）
+- 圖片大小超過限制
 - 圖片處理失敗
 - 模型推理錯誤
 
 所有錯誤都會返回適當的 HTTP 狀態碼和錯誤信息。
-
-## 日誌記錄
-
-- 所有操作日誌保存在 `model.log`
-- 包含模型初始化、預測請求等信息
-- 錯誤日誌包含詳細的堆棧跟踪
 
 ## 開發者注意事項
 
@@ -161,20 +182,21 @@ curl -X POST -F "file=@/path/to/image.jpg" http://localhost:8000/predict
    - 模型文件預設被 .gitignore 忽略
 
 2. 環境變量
-   - 後端：使用 `.env` 文件配置（需自行創建）
-   - 前端：使用 `.env.local` 文件配置（開發環境）
-   - 前端生產環境：在 Vercel 中配置
+   - 後端：使用 `.env` 文件配置
+   - 前端開發：使用 `.env.local` 文件
+   - 前端生產：在 Vercel 中配置
 
 3. 代碼風格
    - Python：遵循 PEP 8 規範
    - TypeScript：使用 ESLint 配置
    - 提交前運行代碼格式化
 
-4. 常見問題
-   - 確保 frontend 目錄結構正確
-   - 檢查 next.config.js 配置
+4. 常見問題排查
+   - 確保 `src` 目錄結構正確
+   - 檢查 `next.config.js` 配置
    - 確保環境變量正確設置
-   - 部署時注意路徑配置
+   - 檢查 API 端點配置
+   - 確認 `.next` 目錄中的構建文件
 
 ## 貢獻指南
 
