@@ -11,6 +11,12 @@
 - RESTful API 接口，方便整合
 - 美觀的前端界面，即時顯示結果
 
+## 在線演示
+
+- 前端：https://savage-rate.vercel.app
+- 後端 API：https://savage-rate-backend.onrender.com
+- API 文檔：https://savage-rate-backend.onrender.com/docs
+
 ## 系統要求
 
 ### 後端
@@ -105,7 +111,11 @@ npm run dev
 
 3. 環境變量設置：
    ```
-   NEXT_PUBLIC_API_URL=https://your-backend-api.com
+   # 開發環境
+   NEXT_PUBLIC_API_URL=http://localhost:8000
+
+   # 生產環境
+   NEXT_PUBLIC_API_URL=https://savage-rate-backend.onrender.com
    ```
 
 4. 部署後檢查：
@@ -130,12 +140,17 @@ gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com;
+    server_name savage-rate-backend.onrender.com;
 
     location / {
         proxy_pass http://localhost:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        
+        # CORS 設置
+        add_header 'Access-Control-Allow-Origin' 'https://savage-rate.vercel.app';
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
     }
 }
 ```
@@ -153,7 +168,11 @@ server {
   - 支持格式：JPG、PNG、WebP
 
 ```bash
+# 本地環境
 curl -X POST -F "file=@/path/to/image.jpg" http://localhost:8000/predict
+
+# 生產環境
+curl -X POST -F "file=@/path/to/image.jpg" https://savage-rate-backend.onrender.com/predict
 ```
 
 ### 響應格式
