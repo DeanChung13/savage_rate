@@ -57,9 +57,15 @@ savage-rate/
 │   ├── comment_template.py     # 評論模板
 │   └── main.py                # FastAPI 後端服務
 ├── frontend/
-│   ├── components/            # React 組件
-│   ├── pages/                 # Next.js 頁面
-│   └── styles/               # CSS 樣式文件
+│   ├── src/                   # 源代碼目錄
+│   │   ├── components/        # React 組件
+│   │   ├── pages/            # Next.js 頁面
+│   │   ├── styles/           # CSS 樣式文件
+│   │   └── utils/            # 工具函數
+│   ├── public/               # 靜態資源
+│   ├── next.config.js        # Next.js 配置
+│   ├── tsconfig.json         # TypeScript 配置
+│   └── package.json          # 前端依賴配置
 ├── requirements.txt           # Python 依賴
 └── README.md                 # 項目文檔
 ```
@@ -79,8 +85,35 @@ npm run dev
 ```
 
 3. 訪問應用
-- 前端界面：http://localhost:3000
+- 開發環境：http://localhost:3000
+- 生產環境：https://your-domain.vercel.app
 - API 文檔：http://localhost:8000/docs
+
+## 前端部署
+
+### Vercel 部署
+
+1. 在 Vercel 中導入專案
+2. 設置構建配置：
+   ```json
+   {
+     "buildCommand": "cd frontend && npm install && npm run build",
+     "outputDirectory": "frontend/.next",
+     "devCommand": "cd frontend && npm run dev",
+     "installCommand": "cd frontend && npm install"
+   }
+   ```
+3. 設置環境變量：
+   - `NEXT_PUBLIC_API_URL`: 後端 API 地址
+   - `NEXT_PUBLIC_BASE_URL`: 前端部署地址
+
+### 本地構建
+
+```bash
+cd frontend
+npm run build
+npm run start
+```
 
 ## API 使用
 
@@ -129,12 +162,19 @@ curl -X POST -F "file=@/path/to/image.jpg" http://localhost:8000/predict
 
 2. 環境變量
    - 後端：使用 `.env` 文件配置（需自行創建）
-   - 前端：使用 `.env.local` 文件配置
+   - 前端：使用 `.env.local` 文件配置（開發環境）
+   - 前端生產環境：在 Vercel 中配置
 
 3. 代碼風格
    - Python：遵循 PEP 8 規範
    - TypeScript：使用 ESLint 配置
    - 提交前運行代碼格式化
+
+4. 常見問題
+   - 確保 frontend 目錄結構正確
+   - 檢查 next.config.js 配置
+   - 確保環境變量正確設置
+   - 部署時注意路徑配置
 
 ## 貢獻指南
 
